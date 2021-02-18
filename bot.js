@@ -42,7 +42,6 @@ client.on('ready', () => {
     // If the table isn't there, create it and setup the database correctly. 
     old_keys.prepare("CREATE TABLE list (name TEXT PRIMARY KEY, dungeon TEXT, keyvalue INTEGER);").run();
     // Ensure that the "id" row is always unique and indexed. 
-    //old_keys.prepare("CREATE UNIQUE INDEX idx_names_id ON list (name);").run();
     old_keys.pragma("synchronous = 1");
   }
 
@@ -63,7 +62,6 @@ client.on("guildDelete", guild => {
 client.on('message', (receivedMsg) => {
   if (receivedMsg.author.bot) return; // No response if sent by bot
 
-  //let role = 590540221716627466
 
   if (!(receivedMsg.member.roles.find(r => r.name === config.role))) return;
 
@@ -71,11 +69,6 @@ client.on('message', (receivedMsg) => {
   if (!logs) console.log('The interaction channel does not exist and cannot be created');
 
   if (receivedMsg.content.indexOf(config.prefix) === 0) processCmd(receivedMsg, logs) // Process if starts with configured prefix
-
-//  console.log(receivedMsg.mentions.members.first())
-
-//  if (receivedMsg.mentions.members.users === 2 && )
-//    return message.reply("Please mention a user to kick");
 });
 
 
