@@ -1,0 +1,13 @@
+{
+  "command" :
+  [
+    { "name" : "list", "function" : "listItem", "shortcut" : ["ls"], "desc" : "Lists all items on the current list"},
+    { "name" : "add", "function" : "addItem", "shortcut" : ["a"], "desc" : "Adds item to the current list"},
+    { "name" : "ok", "function" : "okItem", "shortcut" : [], "desc" : "Validates picking the item from the list"},
+    { "name" : "nok", "function" : "nOkItem", "shortcut" : [], "desc" : "InValidates picking the item from the list"},
+    { "name" : "all_ok", "function" : "allOkItem", "shortcut" : [], "desc" : "Validates the whole list"},
+    { "name" : "delete", "function" : "delItem", "shortcut" : ["d", "rm"], "desc" : "(Hard) Removes item from list"},
+    { "name" : "pay", "function" : "payItem", "shortcut" : [], "desc" : "Signals that all ok items have been paid, archives a list containing all paid items, creates a new list, adds all non-ok to new list"},
+    { "name" : "flush", "function" : "flushList", "shortcut" : [], "desc" : "(Hard) Removes all items from list, the items wont be archived, impossible to get them back"}
+  ]
+}

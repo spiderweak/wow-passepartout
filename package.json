@@ -1,0 +1,17 @@
+{
+  "name": "discord-courses-bot",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "Spiderweak",
+  "license": "CeCILL",
+  "dependencies": {
+    "better-sqlite3": "^5.4.0",
+    "discord.js": "^11.5.1",
+    "node-gyp": "^5.0.0"
+  }
+}

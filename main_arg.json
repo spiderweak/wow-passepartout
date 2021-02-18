@@ -1,0 +1,7 @@
+{
+  "command" :
+  [
+    { "name" : "help", "function" : "helpCmd", "shortcut": ["h"], "desc" : "Provides help to user regarding commands"},
+    { "name" : "dgm", "function" : "groceriesHandlingCmd", "shortcut" : [], "desc" : "Main (Sole) function of the bot, handle a single grocery list"}
+  ]
+}

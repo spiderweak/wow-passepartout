@@ -1,2 +1,1 @@
-# wow-passepartout
-Maitre des clefs mythiques
+Add DGM to server and allow Send and Pin Message
