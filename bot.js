@@ -28,7 +28,7 @@ const old_keys = new Database('old_keys.db', { verbose:console.log})
 client.on('ready', () => {
 
   // Check if the table "points" exists.
-  const table = key_list.prepare("SELECT count(*) FROM sqlite_master WHERE type='table' AND name = 'list';").get();
+  let table = key_list.prepare("SELECT count(*) FROM sqlite_master WHERE type='table' AND name = 'list';").get();
   if (!table['count(*)']) {
     // If the table isn't there, create it and setup the database correctly.
     key_list.prepare("CREATE TABLE list (username TEXT PRIMARY KEY, dungeon TEXT, keyvalue INTEGER);").run();
@@ -102,15 +102,15 @@ function helpCmd(args, receivedMsg, logChan) {
     if (args[0] === "help" || args[0] === "h") {
       helpCmd(args.slice(1), receivedMsg, logChan)
     } else {
-      var handled_command_array = []
-      for (var index=0; index < main_arg['command'].length; index++) {
+      let handled_command_array = []
+      for (let index=0; index < main_arg['command'].length; index++) {
         handled_command_array.push(main_arg['command'][index]['name'])
         Array.prototype.push.apply(handled_command_array, main_arg['command'][index]['shortcut']);      
       }
       if (handled_command_array.includes(args[0])) {
         if (args[0] === "dgm") {
           logChan.send("I can help you with that, here is how " + args[0] + " works :")
-          for (var index=0; index < pp_arg['command'].length; index++) {
+          for (let index=0; index < pp_arg['command'].length; index++) {
             logChan.send("" + (pp_arg['command'][index]['name']) + " : " + (pp_arg['command'][index]['desc']))
           }
         }
@@ -120,7 +120,7 @@ function helpCmd(args, receivedMsg, logChan) {
     }
   } else {
     logChan.send("Here is the list of commands I can handle")
-    for (var index=0; index < main_arg['command'].length; index++) {
+    for (let index=0; index < main_arg['command'].length; index++) {
       logChan.send("" + (main_arg['command'][index]['name']) + " : " + (main_arg['command'][index]['desc']))
     }
   }
