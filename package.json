@@ -1,17 +1,25 @@
 {
-  "name": "discord-courses-bot",
+  "name": "discord-keystone-bot",
   "version": "1.0.0",
-  "description": "",
+  "description": "Add DGM to server and allow Send and Pin Message",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
   "author": "Spiderweak",
-  "license": "CeCILL",
+  "license": "CC0-1.0",
   "dependencies": {
-    "better-sqlite3": "^5.4.0",
-    "discord.js": "^11.5.1",
+    "better-sqlite3": "^5.4.3",
+    "discord.js": "^11.6.4",
     "node-gyp": "^5.0.0"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/spiderweak/wow-passepartout.git"
+  },
+  "bugs": {
+    "url": "https://github.com/spiderweak/wow-passepartout/issues"
+  },
+  "homepage": "https://github.com/spiderweak/wow-passepartout#readme"
 }

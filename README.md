@@ -1,1 +1,1 @@
-Add DGM to server and allow Send and Pin Message
+Add Passepartout to server and allow Send Message

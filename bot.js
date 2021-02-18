@@ -97,7 +97,7 @@ function processCmd(receivedMsg, logChan){
   } else if (primaryCmd == "dgm") {
     groceriesHandlingCmd(args, receivedMsg, logChan)
   } else {
-    logChan.send("I didn't understand. Try `!help`")
+    logChan.send("I didn't understand. Try " + config.prefix + " `help`")
   }
 }
 
