@@ -68,7 +68,7 @@ client.on('message', (receivedMsg) => {
   if (!(receivedMsg.member.roles.find(r => r.name === config.role))) return;
 
   const logs = receivedMsg.guild.channels.find(channel => channel.name === config.channel);
-  if (!logs) console.log('The logs channel does not exist and cannot be created');
+  if (!logs) console.log('The interaction channel does not exist and cannot be created');
 
   if (receivedMsg.content.indexOf(config.prefix) === 0) processCmd(receivedMsg, logs) // Process if starts with configured prefix
 
@@ -86,18 +86,14 @@ client.on('message', (receivedMsg) => {
 function processCmd(receivedMsg, logChan){
   let fullCmd = receivedMsg.content.substr(config.prefix.length +1) // Removes "!"
   let splitCmd = fullCmd.split(" ") // Split using spaces
-  let primaryCmd = splitCmd[0] // First word determines action
-  let args = splitCmd.slice(1) // All others are arguments for the primary command
+  let args = splitCmd.slice(0) // Store all arguments
 
-  console.log("Command Received " + primaryCmd)
   console.log("Arguments : " + args)
 
-  if (primaryCmd === "help" || primaryCmd === "h") {
+  if (args[0] === "help" || args[0] === "h") {
     helpCmd(args, receivedMsg, logChan)
-  } else if (primaryCmd == "dgm") {
-    groceriesHandlingCmd(args, receivedMsg, logChan)
   } else {
-    logChan.send("I didn't understand. Try " + config.prefix + " `help`")
+    keyHolderCmd(args, receivedMsg, logChan)
   }
 }
 
@@ -114,8 +110,8 @@ function helpCmd(args, receivedMsg, logChan) {
       if (handled_command_array.includes(args[0])) {
         if (args[0] === "dgm") {
           logChan.send("I can help you with that, here is how " + args[0] + " works :")
-          for (var index=0; index < dgm_arg['command'].length; index++) {
-            logChan.send("" + (dgm_arg['command'][index]['name']) + " : " + (dgm_arg['command'][index]['desc']))
+          for (var index=0; index < pp_arg['command'].length; index++) {
+            logChan.send("" + (pp_arg['command'][index]['name']) + " : " + (pp_arg['command'][index]['desc']))
           }
         }
       } else {
@@ -130,16 +126,12 @@ function helpCmd(args, receivedMsg, logChan) {
   }
 }
 
-function groceriesHandlingCmd(args, receivedMsg, logChan) {
+function keyHolderCmd(args, receivedMsg, logChan) {
   if (args.length > 0) {
     switch (args[0]) {
       case "list":
       case "ls":
-        if (args.length > 1) {
-          if (args[1] === "ok" || args[1] === "Ok" || args[1] === "OK") logChan.send(JSON.stringify(dumpDB(ok_list)))
-        } else {
           logChan.send(JSON.stringify(dumpDB(current_list)))
-        }
         break;
       case "add":
       case "a":
@@ -210,11 +202,11 @@ function groceriesHandlingCmd(args, receivedMsg, logChan) {
         helpCmd(["dgm"], receivedMsg, logChan)
         break;
       default:
-        logChan.send("I do not understand this command, if it is right, contact the bot programmer for debug");
+	logChan.send("I didn't understand. Try " + config.prefix + " `help`");
     }
   } else {
-    logChan.send("Don't you know how to handle the grocery list ?")
-    helpCmd(["dgm"], receivedMsg, logChan)
+    logChan.send("Placeholder")
+//    helpCmd(["dgm"], receivedMsg, logChan)
   }
 }
 
