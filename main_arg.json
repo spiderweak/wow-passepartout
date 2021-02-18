@@ -4,6 +4,6 @@
     { "name" : "help", "function" : "helpCmd", "shortcut": ["h"], "desc" : "Provides help to user regarding commands"},
     { "name" : "add", "function" : "addKey", "shortcut": ["a"], "desc" : "Adds key to register"},
     { "name" : "delete", "function" : "delKey", "shortcut": ["del"], "desc" : "Removes a key"},
-    { "name" : "list", "function" : "listKeys", "shortcut": ["l"], "desc" : "Lists all keys"},
+    { "name" : "list", "function" : "listKeys", "shortcut": ["l"], "desc" : "Lists all keys"}
   ]
 }

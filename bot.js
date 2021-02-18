@@ -205,7 +205,7 @@ function updateInDB(item, db) {
 
 function removeFromDB(item, db) {
 	const deleteStatement = db.prepare('DELETE FROM list WHERE username = ?');
-	deleteStatement.run(name_to_delete)
+	deleteStatement.run(item['username'])
 }
 
 function dumpDB(db){
