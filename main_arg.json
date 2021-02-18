@@ -5,7 +5,5 @@
     { "name" : "add", "function" : "addKey", "shortcut": ["a"], "desc" : "Adds key to register"},
     { "name" : "delete", "function" : "delKey", "shortcut": ["del"], "desc" : "Removes a key"},
     { "name" : "list", "function" : "listKeys", "shortcut": ["l"], "desc" : "Lists all keys"},
-    { "name" : "flush", "function" : "flushKeys", "desc" : "Resets key list"},
-    { "name" : "restore", "function" : "restoreKeys", "desc" : "Restores last key list"}
   ]
 }

@@ -12,14 +12,12 @@ const Database = require('better-sqlite3')
 // --------------------
 
 const main_arg = require('./main_arg.json');
-const pp_arg = require('./pp_arg.json');
 
 // --------------------
 // Backup of current list and archives
 // --------------------
 
 const key_list = new Database('keys.db', { verbose:console.log})
-const old_keys = new Database('old_keys.db', { verbose:console.log})
 
 // --------------------
 // Discord Client Handling
@@ -35,14 +33,6 @@ client.on('ready', () => {
     // Ensure that the "id" row is always unique and indexed.
     //key_list.prepare("CREATE UNIQUE INDEX idx_names_id ON list (name);").run();
     key_list.pragma("synchronous = 1");
-  }
-
-  const table = old_keys.prepare("SELECT count(*) FROM sqlite_master WHERE type='table' AND name = 'list';").get();
-  if (!table['count(*)']) {
-    // If the table isn't there, create it and setup the database correctly. 
-    old_keys.prepare("CREATE TABLE list (name TEXT PRIMARY KEY, dungeon TEXT, keyvalue INTEGER);").run();
-    // Ensure that the "id" row is always unique and indexed. 
-    old_keys.pragma("synchronous = 1");
   }
 
   console.log(`Bot has started, with ${client.users.size} users, in ${client.channels.size} channels of ${client.guilds.size} guilds.`); 
@@ -99,17 +89,7 @@ function helpCmd(args, receivedMsg, logChan) {
       for (let index=0; index < main_arg['command'].length; index++) {
         handled_command_array.push(main_arg['command'][index]['name'])
         Array.prototype.push.apply(handled_command_array, main_arg['command'][index]['shortcut']);      
-      }
-      if (handled_command_array.includes(args[0])) {
-        if (args[0] === "dgm") {
-          logChan.send("I can help you with that, here is how " + args[0] + " works :")
-          for (let index=0; index < pp_arg['command'].length; index++) {
-            logChan.send("" + (pp_arg['command'][index]['name']) + " : " + (pp_arg['command'][index]['desc']))
-          }
-        }
-      } else {
-        logChan.send("I do not provide help for this function, seems I don't know how to use it either")
-      }
+      } 
     }
   } else {
     logChan.send("Here is the list of commands I can handle")
@@ -134,7 +114,6 @@ function keyHolderCmd(args, receivedMsg, logChan) {
 		const WoW_keyvalue = (!(isNaN(parseInt(args[3])))) ? parseInt(args[3]) : 2
 		insertInDB({'username':WoW_user, 'dungeon':WoW_dungeon, 'keyvalue':WoW_keyvalue},key_list)
 		logChan.send("Added " + WoW_dungeon + " " + WoW_keyvalue + " for User :  " + WoW_user)
-
 	} else if (args.length === 3) {
 		const WoW_user = receivedMsg.author.username
 		const WoW_dungeon = args[1]
@@ -145,61 +124,41 @@ function keyHolderCmd(args, receivedMsg, logChan) {
           logChan.send("No keys to add")
         }
         break;
-      case "ok":
-        if (args.length > 1) {
-          if (existsInDB(args[1], key_list)) {
-            quantity = (args.length > 2 && !(isNaN(parseInt(args[2])))) ? parseInt(args[2]) : getQuantityInDB(args[1], key_list)
-            insertInDB({'name':args[1], 'quantity':quantity}, old_keys)
-            removeFromDB({'name':args[1], 'quantity':quantity}, key_list)
-            logChan.send("Moved " + quantity + " of " + args[1] + " from the grocery list")
-          } else {
-            quantity = (args.length > 2 && !(isNaN(parseInt(args[2])))) ? parseInt(args[2]) : 1
-            insertInDB({'name':args[1], 'quantity':quantity}, old_keys)
-            logChan.send("Moved " + quantity + " of " + args[1] + " from the grocery list")
-          }
-        } else {
-          logChan.send("Nothing to move to the OK list")
-        }        
-        break;
-      case "nok":
-        if (args.length > 1) {
-          quantity = (args.length > 2 && !(isNaN(parseInt(args[2])))) ? parseInt(args[2]) : getQuantityInDB(args[1], old_keys)
-          insertInDB({'name':args[1], 'quantity':quantity}, key_list)
-          removeFromDB({'name':args[1], 'quantity':quantity}, old_keys)
-          logChan.send("Moved " + quantity + " of " + args[1] + " from the OK list to the grocery List")
-        } else {
-          logChan.send("Nothing to move from the OK list")
-        } 
-        break;
-      case "all_ok":
-//        for (var index=0; index < countLinesInDB(key_list); index++) {
-//          handleGroceriesCmd(["ok",, receivedMsg, logChan)
-//        }
+      case "update":
+        if (args.length === 4) {
+		const WoW_user = args[1]
+		const WoW_dungeon = args[2]
+		const WoW_keyvalue = (!(isNaN(parseInt(args[3])))) ? parseInt(args[3]) : 2
+		updateInDB({'username':WoW_user, 'dungeon':WoW_dungeon, 'keyvalue':WoW_keyvalue},key_list)
+		logChan.send("Added " + WoW_dungeon + " " + WoW_keyvalue + " for User :  " + WoW_user)
+	} else if (args.length === 3) {
+		const WoW_user = receivedMsg.author.username
+		const WoW_dungeon = args[1]
+                const WoW_keyvalue = (!(isNaN(parseInt(args[2])))) ? parseInt(args[2]) : 2
+		updateInDB({'username':WoW_user, 'dungeon':WoW_dungeon, 'keyvalue':WoW_keyvalue},key_list)
+                logChan.send("Added " + WoW_dungeon + " " + WoW_keyvalue + " for User :  " + WoW_user)
+	} else {
+          logChan.send("No keys to add")
+        }
         break;
       case "delete":
       case "del":
       case "d":
       case "rm":
-        if (args.length > 1) {
-          quantity = (args.length > 2 && !(isNaN(parseInt(args[2])))) ? parseInt(args[2]) : getQuantityInDB(args[1], key_list)
-          removeFromDB({'name':args[1], 'quantity':quantity}, key_list)
-          logChan.send("Removed " + quantity + " of " + args[1] + " from the grocery list")
-        } else {
-          logChan.send("Nothing to add to the grocery list")
+	if (args.length === 2) {
+		const WoW_user = args[1]
+		removeFromDB({'username':WoW_user},key_list)
+                logChan.send("Removed " + WoW_user + "'s key")
+	} else {
+        	const WoW_user = receivedMsg.author.username
+		removeFromDB({'username':WoW_user},key_list)
+		logChan.send("Removed " + WoW_user + "'s key")
         }
-        break;
-      case "pay":
-         backupDB(old_keys) 
-         logChan.send("Thanks for doing the groceries, don't forget to add the amount paid on Splitwise")
-         flushDB(old_keys)
         break;
       case "flush":
-        if (args.length > 1) {
-          if (args[1] === "ok" || args[1] === "Ok" || args[1] === "OK") flushDB(old_keys)
-        } else {
           flushDB(key_list)
-        }
         break;
+      case "help":
       case "h":
         helpCmd(["dgm"], receivedMsg, logChan)
         break;
@@ -208,10 +167,8 @@ function keyHolderCmd(args, receivedMsg, logChan) {
     }
   } else {
     logChan.send("Placeholder")
-//    helpCmd(["dgm"], receivedMsg, logChan)
   }
 }
-
 
 // --------------------
 // Database Specific Fct
@@ -224,13 +181,6 @@ function existsInDB(name_to_test, db) {
   return true
 }
 
-function getQuantityInDB(name_to_test, db) {
-  const selectStatement = db.prepare('SELECT keyvalue FROM list WHERE username = ?');
-  const quantity = selectStatement.get(name_to_test)
-  if (quantity === undefined) return 0
-  return quantity['quantity']
-}
-
 function insertInDB(item, db) {
   if (existsInDB(item['username'], db)) {
   updateInDB(item, db)
@@ -239,14 +189,6 @@ function insertInDB(item, db) {
   console.log(item)
   insertStatement.run(item)
   }
-}
-
-function insertManyInDB(list, db) {
-  const insertStatement = db.prepare('INSERT INTO list (username, dungeon, keyvalue) VALUES (@username, @dungeon, @keyvalue)');
-  
-  const insertMany = db.transaction((list) => {
-    for (const item of list) insertStatement.run(item);
-  });
 }
 
 function updateInDB(item, db) {
