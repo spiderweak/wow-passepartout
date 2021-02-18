@@ -28,7 +28,7 @@ const old_keys = new Database('old_keys.db', { verbose:console.log})
 client.on('ready', () => {
 
   // Check if the table "points" exists.
-  var table = key_list.prepare("SELECT count(*) FROM sqlite_master WHERE type='table' AND name = 'list';").get();
+  const table = key_list.prepare("SELECT count(*) FROM sqlite_master WHERE type='table' AND name = 'list';").get();
   if (!table['count(*)']) {
     // If the table isn't there, create it and setup the database correctly.
     key_list.prepare("CREATE TABLE list (username TEXT PRIMARY KEY, dungeon TEXT, keyvalue INTEGER);").run();
