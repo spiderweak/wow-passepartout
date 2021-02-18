@@ -1,4 +1,6 @@
 {
-  "auth_token": "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
-  "prefix": "!"
+  "auth_token" : "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
+  "prefix" : ".pp",
+  "role" : "Sans-Entraves",
+  "channel" : "wow"
 }

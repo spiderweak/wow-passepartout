@@ -1,0 +1,8 @@
+config.json
+archives
+current.json
+
+current.db
+current_ok.db
+node_modules/
+package-lock.json

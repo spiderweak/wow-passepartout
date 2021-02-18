@@ -12,7 +12,7 @@ const Database = require('better-sqlite3')
 // --------------------
 
 const main_arg = require('./main_arg.json');
-const dgm_arg = require('./dgm_arg.json');
+const pp_arg = require('./pp_arg.json');
 
 // --------------------
 // Backup of current list and archives
@@ -65,9 +65,9 @@ client.on('message', (receivedMsg) => {
 
   //let role = 590540221716627466
 
-  if (!(receivedMsg.member.roles.find(r => r.name === "Coloc"))) return;
+  if (!(receivedMsg.member.roles.find(r => r.name === config.role))) return;
 
-  const logs = receivedMsg.guild.channels.find(channel => channel.name === "dgm-logs");
+  const logs = receivedMsg.guild.channels.find(channel => channel.name === config.channel);
   if (!logs) console.log('The logs channel does not exist and cannot be created');
 
   if (receivedMsg.content.indexOf(config.prefix) === 0) processCmd(receivedMsg, logs) // Process if starts with configured prefix
@@ -84,7 +84,7 @@ client.on('message', (receivedMsg) => {
 // --------------------
 
 function processCmd(receivedMsg, logChan){
-  let fullCmd = receivedMsg.content.substr(1) // Removes "!"
+  let fullCmd = receivedMsg.content.substr(config.prefix.length +1) // Removes "!"
   let splitCmd = fullCmd.split(" ") // Split using spaces
   let primaryCmd = splitCmd[0] // First word determines action
   let args = splitCmd.slice(1) // All others are arguments for the primary command
