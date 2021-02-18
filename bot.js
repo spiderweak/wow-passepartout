@@ -136,16 +136,16 @@ function keyHolderCmd(args, receivedMsg, logChan) {
       case "add":
       case "a":
         if (args.length === 4) {
-		WoW_user = args[1]
-		WoW_dungeon = args[2]
-		WoW_keyvalue = (!(isNaN(parseInt(args[3])))) ? parseInt(args[3]) : 2
+		const WoW_user = args[1]
+		const WoW_dungeon = args[2]
+		const WoW_keyvalue = (!(isNaN(parseInt(args[3])))) ? parseInt(args[3]) : 2
 		insertInDB({'username':WoW_user, 'dungeon':WoW_dungeon, 'keyvalue':WoW_keyvalue},key_list)
 		logChan.send("Added " + WoW_dungeon + " " + WoW_keyvalue + " for User :  " + WoW_user)
 
 	} else if (args.length === 3) {
-		WoW_user = receivedMsg.author.username
-		WoW_dungeon = args[1]
-                WoW_keyvalue = (!(isNaN(parseInt(args[2])))) ? parseInt(args[2]) : 2
+		const WoW_user = receivedMsg.author.username
+		const WoW_dungeon = args[1]
+                const WoW_keyvalue = (!(isNaN(parseInt(args[2])))) ? parseInt(args[2]) : 2
 		insertInDB({'username':WoW_user, 'dungeon':WoW_dungeon, 'keyvalue':WoW_keyvalue},key_list)
                 logChan.send("Added " + WoW_dungeon + " " + WoW_keyvalue + " for User :  " + WoW_user)
 	} else {
