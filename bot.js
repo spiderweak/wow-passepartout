@@ -18,8 +18,8 @@ const pp_arg = require('./pp_arg.json');
 // Backup of current list and archives
 // --------------------
 
-const current_list = new Database('current.db', { verbose:console.log})
-const ok_list = new Database('current_ok.db', { verbose:console.log})
+const key_list = new Database('keys.db', { verbose:console.log})
+const old_keys = new Database('old_keys.db', { verbose:console.log})
 
 // --------------------
 // Discord Client Handling
@@ -28,22 +28,22 @@ const ok_list = new Database('current_ok.db', { verbose:console.log})
 client.on('ready', () => {
 
   // Check if the table "points" exists.
-  var table = current_list.prepare("SELECT count(*) FROM sqlite_master WHERE type='table' AND name = 'list';").get();
+  var table = key_list.prepare("SELECT count(*) FROM sqlite_master WHERE type='table' AND name = 'list';").get();
   if (!table['count(*)']) {
     // If the table isn't there, create it and setup the database correctly.
-    current_list.prepare("CREATE TABLE list (name TEXT PRIMARY KEY, quantity INTEGER);").run();
+    key_list.prepare("CREATE TABLE list (username TEXT PRIMARY KEY, dungeon TEXT, keyvalue INTEGER);").run();
     // Ensure that the "id" row is always unique and indexed.
-    //current_list.prepare("CREATE UNIQUE INDEX idx_names_id ON list (name);").run();
-    current_list.pragma("synchronous = 1");
+    //key_list.prepare("CREATE UNIQUE INDEX idx_names_id ON list (name);").run();
+    key_list.pragma("synchronous = 1");
   }
 
-  table = ok_list.prepare("SELECT count(*) FROM sqlite_master WHERE type='table' AND name = 'list';").get();
+  table = old_keys.prepare("SELECT count(*) FROM sqlite_master WHERE type='table' AND name = 'list';").get();
   if (!table['count(*)']) {
     // If the table isn't there, create it and setup the database correctly. 
-    ok_list.prepare("CREATE TABLE list (name TEXT PRIMARY KEY, quantity INTEGER);").run();
+    old_keys.prepare("CREATE TABLE list (name TEXT PRIMARY KEY, dungeon TEXT, keyvalue INTEGER);").run();
     // Ensure that the "id" row is always unique and indexed. 
-    //ok_list.prepare("CREATE UNIQUE INDEX idx_names_id ON list (name);").run();
-    ok_list.pragma("synchronous = 1");
+    //old_keys.prepare("CREATE UNIQUE INDEX idx_names_id ON list (name);").run();
+    old_keys.pragma("synchronous = 1");
   }
 
   console.log(`Bot has started, with ${client.users.size} users, in ${client.channels.size} channels of ${client.guilds.size} guilds.`); 
@@ -131,28 +131,37 @@ function keyHolderCmd(args, receivedMsg, logChan) {
     switch (args[0]) {
       case "list":
       case "ls":
-          logChan.send(JSON.stringify(dumpDB(current_list)))
+          logChan.send(JSON.stringify(dumpDB(key_list)))
         break;
       case "add":
       case "a":
-        if (args.length > 1) {
-          quantity = (args.length > 2 && !(isNaN(parseInt(args[2])))) ? parseInt(args[2]) : 1
-          insertInDB({'name':args[1], 'quantity':quantity},current_list)
-          logChan.send("Added " + quantity + " of " + args[1] + " to the grocery list")
-        } else {
-          logChan.send("Nothing to add to the grocery list")
+        if (args.length === 4) {
+		WoW_user = args[1]
+		WoW_dungeon = args[2]
+		WoW_keyvalue = (!(isNaN(parseInt(args[3])))) ? parseInt(args[3]) : 2
+		insertInDB({'username':WoW_user, 'dungeon':WoW_dungeon, 'keyvalue':WoW_keyvalue},key_list)
+		logChan.send("Added " + WoW_dungeon + " " + WoW_keyvalue + " for User :  " + WoW_user)
+
+	} else if (args.length === 3) {
+		WoW_user = receivedMsg.author.username
+		WoW_dungeon = args[1]
+                WoW_keyvalue = (!(isNaN(parseInt(args[2])))) ? parseInt(args[2]) : 2
+		insertInDB({'username':WoW_user, 'dungeon':WoW_dungeon, 'keyvalue':WoW_keyvalue},key_list)
+                logChan.send("Added " + WoW_dungeon + " " + WoW_keyvalue + " for User :  " + WoW_user)
+	} else {
+          logChan.send("No keys to add")
         }
         break;
       case "ok":
         if (args.length > 1) {
-          if (existsInDB(args[1], current_list)) {
-            quantity = (args.length > 2 && !(isNaN(parseInt(args[2])))) ? parseInt(args[2]) : getQuantityInDB(args[1], current_list)
-            insertInDB({'name':args[1], 'quantity':quantity}, ok_list)
-            removeFromDB({'name':args[1], 'quantity':quantity}, current_list)
+          if (existsInDB(args[1], key_list)) {
+            quantity = (args.length > 2 && !(isNaN(parseInt(args[2])))) ? parseInt(args[2]) : getQuantityInDB(args[1], key_list)
+            insertInDB({'name':args[1], 'quantity':quantity}, old_keys)
+            removeFromDB({'name':args[1], 'quantity':quantity}, key_list)
             logChan.send("Moved " + quantity + " of " + args[1] + " from the grocery list")
           } else {
             quantity = (args.length > 2 && !(isNaN(parseInt(args[2])))) ? parseInt(args[2]) : 1
-            insertInDB({'name':args[1], 'quantity':quantity}, ok_list)
+            insertInDB({'name':args[1], 'quantity':quantity}, old_keys)
             logChan.send("Moved " + quantity + " of " + args[1] + " from the grocery list")
           }
         } else {
@@ -161,16 +170,16 @@ function keyHolderCmd(args, receivedMsg, logChan) {
         break;
       case "nok":
         if (args.length > 1) {
-          quantity = (args.length > 2 && !(isNaN(parseInt(args[2])))) ? parseInt(args[2]) : getQuantityInDB(args[1], ok_list)
-          insertInDB({'name':args[1], 'quantity':quantity}, current_list)
-          removeFromDB({'name':args[1], 'quantity':quantity}, ok_list)
+          quantity = (args.length > 2 && !(isNaN(parseInt(args[2])))) ? parseInt(args[2]) : getQuantityInDB(args[1], old_keys)
+          insertInDB({'name':args[1], 'quantity':quantity}, key_list)
+          removeFromDB({'name':args[1], 'quantity':quantity}, old_keys)
           logChan.send("Moved " + quantity + " of " + args[1] + " from the OK list to the grocery List")
         } else {
           logChan.send("Nothing to move from the OK list")
         } 
         break;
       case "all_ok":
-//        for (var index=0; index < countLinesInDB(current_list); index++) {
+//        for (var index=0; index < countLinesInDB(key_list); index++) {
 //          handleGroceriesCmd(["ok",, receivedMsg, logChan)
 //        }
         break;
@@ -179,23 +188,23 @@ function keyHolderCmd(args, receivedMsg, logChan) {
       case "d":
       case "rm":
         if (args.length > 1) {
-          quantity = (args.length > 2 && !(isNaN(parseInt(args[2])))) ? parseInt(args[2]) : getQuantityInDB(args[1], current_list)
-          removeFromDB({'name':args[1], 'quantity':quantity}, current_list)
+          quantity = (args.length > 2 && !(isNaN(parseInt(args[2])))) ? parseInt(args[2]) : getQuantityInDB(args[1], key_list)
+          removeFromDB({'name':args[1], 'quantity':quantity}, key_list)
           logChan.send("Removed " + quantity + " of " + args[1] + " from the grocery list")
         } else {
           logChan.send("Nothing to add to the grocery list")
         }
         break;
       case "pay":
-         backupDB(ok_list) 
+         backupDB(old_keys) 
          logChan.send("Thanks for doing the groceries, don't forget to add the amount paid on Splitwise")
-         flushDB(ok_list)
+         flushDB(old_keys)
         break;
       case "flush":
         if (args.length > 1) {
-          if (args[1] === "ok" || args[1] === "Ok" || args[1] === "OK") flushDB(ok_list)
+          if (args[1] === "ok" || args[1] === "Ok" || args[1] === "OK") flushDB(old_keys)
         } else {
-          flushDB(current_list)
+          flushDB(key_list)
         }
         break;
       case "h":
@@ -216,31 +225,31 @@ function keyHolderCmd(args, receivedMsg, logChan) {
 // --------------------
 
 function existsInDB(name_to_test, db) {
-  const selectStatement = db.prepare('SELECT quantity FROM list WHERE name = ?');
+  const selectStatement = db.prepare('SELECT keyvalue FROM list WHERE username = ?');
   const quantity = selectStatement.get(name_to_test)
   if (quantity === undefined) return false
   return true
 }
 
 function getQuantityInDB(name_to_test, db) {
-  const selectStatement = db.prepare('SELECT quantity FROM list WHERE name = ?');
+  const selectStatement = db.prepare('SELECT keyvalue FROM list WHERE username = ?');
   const quantity = selectStatement.get(name_to_test)
   if (quantity === undefined) return 0
   return quantity['quantity']
 }
 
 function insertInDB(item, db) {
-  if (existsInDB(item['name'], db)) {
+  if (existsInDB(item['username'], db)) {
   updateInDB(item, db)
   } else {
-  const insertStatement = db.prepare('INSERT INTO list (name, quantity) VALUES (@name, @quantity)');
+  const insertStatement = db.prepare('INSERT INTO list (username, dungeon, keyvalue) VALUES (@username, @dungeon, @keyvalue)');
   console.log(item)
   insertStatement.run(item)
   }
 }
 
 function insertManyInDB(list, db) {
-  const insertStatement = db.prepare('INSERT INTO list (name, quantity) VALUES (@name, @quantity)');
+  const insertStatement = db.prepare('INSERT INTO list (username, dungeon, keyvalue) VALUES (@username, @dungeon, @keyvalue)');
   
   const insertMany = db.transaction((list) => {
     for (const item of list) insertStatement.run(item);
@@ -248,34 +257,24 @@ function insertManyInDB(list, db) {
 }
 
 function updateInDB(item, db) {
-  const selectStatement = db.prepare('SELECT quantity FROM list WHERE name = ?');
-  const quantity = selectStatement.get(item['name'])
+  const selectStatement = db.prepare('SELECT keyvalue FROM list WHERE username = ?');
+  const quantity = selectStatement.get(item['username'])
   if (quantity === undefined) {
     console.log("Item does not exist, Inserting instead")
     insertInDB(item,db)
   } else {
-    const updateStatement = db.prepare('UPDATE list SET quantity = ? WHERE name = ?');
-    updateStatement.run(quantity['quantity']+item['quantity'], item['name'])
+    const updateStatement = db.prepare('UPDATE list SET keyvalue = ? AND dungeon = ? WHERE username = ?');
+    updateStatement.run(item['keyvalue'],item['dungeon'], item['name'])
   }
 }
 
 function removeFromDB(item, db) {
-  const selectStatement = db.prepare('SELECT quantity FROM list WHERE name = ?');
-  const quantity = selectStatement.get(item['name'])
-  if (quantity === undefined) {
-    console.log("Item does not exist")
-  } else if (item['quantity'] <= 0 || quantity['quantity'] - item['quantity'] <= 0) {
-    name_to_delete = item['name']
-    const deleteStatement = db.prepare('DELETE FROM list WHERE name = ?');
-    deleteStatement.run(name_to_delete)
-  } else {
-    const updateStatement = db.prepare('UPDATE list SET quantity = ? WHERE name = ?');
-    updateStatement.run(quantity['quantity']-item['quantity'], item['name'])
-  }
+	const deleteStatement = db.prepare('DELETE FROM list WHERE username = ?');
+	deleteStatement.run(name_to_delete)
 }
 
 function dumpDB(db){
-  return db.prepare('SELECT name, quantity FROM list').all()
+  return db.prepare('SELECT username, dungeon, keyvalue FROM list').all()
 }
 
 function flushDB(db){

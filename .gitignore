@@ -2,7 +2,7 @@ config.json
 archives
 current.json
 
-current.db
-current_ok.db
+keys.db
+old_keys.db
 node_modules/
 package-lock.json
