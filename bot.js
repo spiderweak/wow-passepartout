@@ -104,7 +104,10 @@ function keyHolderCmd(args, receivedMsg, logChan) {
     switch (args[0]) {
       case "list":
       case "ls":
-          logChan.send(JSON.stringify(dumpDB(key_list)))
+        const all_keys = dumpDB(key_list)
+	for (let index=0; index < all_keys.length; index++) {
+		logChan.send(all_keys[index].username+"'s key is " + all_keys[index].dungeon + " " + all_keys[index].keyvalue)
+	}
         break;
       case "add":
       case "a":
