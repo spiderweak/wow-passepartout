@@ -105,9 +105,15 @@ function keyHolderCmd(args, receivedMsg, logChan) {
       case "list":
       case "ls":
         const all_keys = dumpDB(key_list)
-	for (let index=0; index < all_keys.length; index++) {
-		logChan.send(all_keys[index].username+"'s key is " + all_keys[index].dungeon + " " + all_keys[index].keyvalue)
+	let message = ""
+	if (all_keys.length == 0) {
+		message = "Pas de clef dans le trousseau"
+	} else {
+		for (let index=0; index < all_keys.length; index++) {
+			message += (all_keys[index].username + "'s key is " + all_keys[index].dungeon + " " + all_keys[index].keyvalue + "\n")
+		}
 	}
+	logChan.send(message)
         break;
       case "add":
       case "a":
@@ -160,6 +166,7 @@ function keyHolderCmd(args, receivedMsg, logChan) {
         break;
       case "flush":
           flushDB(key_list)
+	  logChan.send("Merde, j'ai perdu mes clefs")
         break;
       case "help":
       case "h":
@@ -201,8 +208,8 @@ function updateInDB(item, db) {
     console.log("Item does not exist, Inserting instead")
     insertInDB(item,db)
   } else {
-    const updateStatement = db.prepare('UPDATE list SET keyvalue = ? AND dungeon = ? WHERE username = ?');
-    updateStatement.run(item['keyvalue'],item['dungeon'], item['name'])
+    const updateStatement = db.prepare('UPDATE list SET dungeon = ?, keyvalue = ? WHERE username = ?');
+    updateStatement.run(item['dungeon'],item['keyvalue'], item['username'])
   }
 }
 
